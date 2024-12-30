@@ -44,6 +44,11 @@ impl Drop for HttpClient {
 
 impl HttpClient {
     pub fn new() -> Self {
+        // TODO
+        //
+        // Will be moving the connection pool out of the client instance so that it's a shared which can be used by all HttpClient instances.
+        // This will limit the growth of threads to a maximum of one in the future, where the client itself may become stateful, such as in the instance
+        // of a cookie storage, etc.
         let (tx, rx): (Sender<bool>, Receiver<bool>) = channel();
         let pool = Arc::new(Mutex::new(SessionPool::new()));
         let pool_thread_copy = pool.clone();
