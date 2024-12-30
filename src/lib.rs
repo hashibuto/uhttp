@@ -276,4 +276,72 @@ mod tests {
         client.release(resp).unwrap();
         jh.join().unwrap();
     }
+
+    #[test]
+    fn test_recv_body() {
+        let listener = TcpListener::bind("localhost:10646").unwrap();
+
+        let jh = thread::spawn(|| {
+            let l = listener;
+            let (stream, _) = l.accept().unwrap();
+            let mut session = TcpSession::from_stream(stream);
+            let header_vec = session.recv_until(b"\r\n\r\n", MAX_HEADER_SIZE).unwrap();
+            HttpHeader::from_bytes(&header_vec).unwrap();
+
+            let mut resp_header = HttpHeader::new();
+            resp_header.set_status_line(&HttpStatus::new(200));
+            resp_header.set_header("authorization".to_owned(), "Bearer token".to_owned());
+            resp_header.set_header("content-length".to_owned(), format!("{}", BODY_SIZE));
+            let resp_header_bytes = resp_header.to_vec();
+            session.send(&resp_header_bytes).unwrap();
+
+            let mut body: Vec<u8> = vec![];
+            let mut v: u8 = 0;
+            for _ in 0..BODY_SIZE {
+                body.push(v);
+                if v == 255 {
+                    v = 0;
+                } else {
+                    v += 1;
+                }
+            }
+            let mut total = 0;
+            while total < BODY_SIZE {
+                let n_bytes = session.send(&body[total..]).unwrap();
+                total += n_bytes;
+            }
+
+        });
+
+        let client = HttpClient::new();
+        let req = Request::new(
+            Method::Post,
+            Url::new("http://localhost:10646/path/is/here?abc=1&def=2".to_string()),
+        );
+        let mut resp = client.req(&req).unwrap();
+        assert!(resp.status.status_code == 200);
+        assert!(resp.has_body());
+        let mut recv_body: Vec<u8> = vec![];
+        let mut n_bytes: usize = 1;
+        let mut buf = [0u8; 4096];
+        while n_bytes > 0 {
+            n_bytes = resp.read_body(&mut buf).unwrap();
+            if n_bytes > 0 {
+                recv_body.append(&mut buf[..n_bytes].to_vec());
+            }
+        }
+
+        let mut v: u8 = 0;
+        for i in 0..BODY_SIZE {
+            assert!(recv_body[i] == v);
+            if v == 255 {
+                v = 0;
+            } else {
+                v += 1;
+            }
+        }
+
+        client.release(resp).unwrap();
+        jh.join().unwrap();
+    }
 }
