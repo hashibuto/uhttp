@@ -131,3 +131,20 @@ impl Url {
         return format!("{}{}", path, query);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_url_parser() {
+        let u = Url::new("http://www.my-test.com:8080/whatever?a=1&b=2#test".to_string());
+        assert!(u.scheme == "http");
+        assert!(u.hostname == "www.my-test.com");
+        assert!(u.port == "8080");
+        assert!(u.path == "/whatever");
+        assert!(u.query == "a=1&b=2");
+        assert!(u.fragment == "test")
+    }
+
+}

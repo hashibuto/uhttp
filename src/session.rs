@@ -159,7 +159,7 @@ impl TcpSession {
         }
 
         // buf now contains all the data we wanted, we need to buffer the remainder if any and then return the truncated buffer
-        let cutover_index: usize = (final_index + 1) as usize;
+        let cutover_index: usize = final_index as usize;
         if buf.len() > cutover_index {
             self.buffer = buf[cutover_index..].to_vec();
             buf.truncate(cutover_index);
