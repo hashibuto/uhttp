@@ -46,6 +46,15 @@ impl HttpHeader {
         self.headers.insert(k, vec![v]);
     }
 
+    pub fn set_header_if_empty(&mut self, key: String, value: String) {
+        let k = key.to_lowercase().trim().to_owned();
+        if self.headers.contains_key(&k) {
+            return;
+        }
+        let v = value.trim().to_owned();
+        self.headers.insert(k, vec![v]);
+    }
+
     pub fn from_bytes(b: &[u8]) -> Result<Self, Box<dyn error::Error>> {
         let mut http_header = HttpHeader::new();
         let header_string = String::from_utf8(b.to_vec())?;

@@ -107,6 +107,9 @@ impl HttpClient {
         let mut http_header = req.header.clone();
         http_header.set_header("content-length".to_owned(), format!("{}", body_size));
         http_header.set_header("host".to_owned(), req.url.host());
+        if body_size > 0 {
+            http_header.set_header_if_empty("content-type".to_owned(), "application/octet-stream".to_owned());
+        }
 
         let mut session = self.pool.lock().unwrap().acquire(&req.url.host());
         let header_vec = http_header.to_vec();
