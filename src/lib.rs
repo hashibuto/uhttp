@@ -1,16 +1,10 @@
 use std::{
     error,
     io::{self},
-    sync::{
-        mpsc::{channel, Receiver, Sender},
-        Arc, Mutex,
-    },
-    thread::{self, JoinHandle},
-    time::Duration,
 };
 
 use header::HttpHeader;
-use pool::SessionPool;
+use pool::POOL_INSTANCE;
 use response::Response;
 
 mod header;
@@ -27,48 +21,11 @@ pub use url::Url;
 const MAX_HEADER_SIZE: usize = 32768;
 
 pub struct HttpClient {
-    kill_chan: Sender<bool>,
-    pool: Arc<Mutex<SessionPool>>,
-    thread_handle: Option<JoinHandle<()>>,
-}
-
-impl Drop for HttpClient {
-    fn drop(&mut self) {
-        // no choice here but to panic if for whatever reason we cannot invoke the kill channel
-        self.kill_chan.send(true).unwrap();
-        if let Some(handle) = self.thread_handle.take() {
-            handle.join().unwrap();
-        }
-    }
 }
 
 impl HttpClient {
     pub fn new() -> Self {
-        // TODO
-        //
-        // Will be moving the connection pool out of the client instance so that it's a shared which can be used by all HttpClient instances.
-        // This will limit the growth of threads to a maximum of one in the future, where the client itself may become stateful, such as in the instance
-        // of a cookie storage, etc.
-        let (tx, rx): (Sender<bool>, Receiver<bool>) = channel();
-        let pool = Arc::new(Mutex::new(SessionPool::new()));
-        let pool_thread_copy = pool.clone();
-        let join_handle = thread::spawn(move || {
-            loop {
-                let result = rx.recv_timeout(Duration::from_secs(5));
-                match result {
-                    // kill signal received
-                    Ok(_) => return,
-
-                    // lock and remove expired entries
-                    Err(_) => pool_thread_copy.lock().unwrap().remove_expired(),
-                }
-            }
-        });
-
         return Self {
-            kill_chan: tx,
-            pool,
-            thread_handle: Some(join_handle),
         };
     }
 
@@ -83,7 +40,7 @@ impl HttpClient {
             recv_bytes = res.read_body(&mut buf)?;
         }
 
-        self.pool.lock().unwrap().release(res.session);
+        POOL_INSTANCE.lock().unwrap().release(res.session);
 
         Ok(())
     }
@@ -116,7 +73,7 @@ impl HttpClient {
             http_header.set_header_if_empty("content-type".to_owned(), "application/octet-stream".to_owned());
         }
 
-        let mut session = self.pool.lock().unwrap().acquire(&req.url.host());
+        let mut session = POOL_INSTANCE.lock().unwrap().acquire(&req.url.host());
         let header_vec = http_header.to_vec();
         let header_bytes = header_vec.as_slice();
         let mut total: usize = 0;
