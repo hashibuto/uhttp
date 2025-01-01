@@ -2,7 +2,7 @@
 uhttp (pronounced micro http) is a minimalist http client library focused on providing a narrow subset of HTTP capabilities, enabling simple http comms, without carrying additional dependencies beyond the standard library.
 
 ## features
-it's not supposed to have a ton of features, it's supposed to be minimalist, hence no compression, etc.
+it's not supposed to have a ton of features, it's supposed to be minimalist, hence no compression, cookies, etc.
 - connection pooling
 - chunked encoding
 
