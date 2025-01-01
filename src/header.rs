@@ -83,6 +83,14 @@ impl HttpHeader {
 
             let (k_str, v_str) = result.unwrap();
             let key = k_str.to_lowercase().trim().to_owned();
+
+            // we don't support cookies - for a basic HTTP transport system, cookies seem an unnecessary addition
+            // due to the lack of inherent security in the unprotected HTTP header, as well as the additional parsing
+            // complexities.
+            if key == "set-cookie" {
+                continue;
+            }
+
             let value = v_str.trim().to_owned();
             let entry = http_header.headers.entry(key);
             match entry {
