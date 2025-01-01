@@ -1,0 +1,29 @@
+name: continuous integration
+
+on:
+  push:
+    branches:
+    - "**"
+
+jobs:
+
+  publish:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: get version
+      uses: hashibuto/actions/version@version-v0
+      with:
+        filename: Cargo.toml
+        toml-section: 'package'
+        toml-key: 'version'
+
+    - name: run tests
+      run: make test
+
+    - uses: hashibuto/actions/tagger@tagger-v0
+      with:
+        create-version-tag: 'true'
