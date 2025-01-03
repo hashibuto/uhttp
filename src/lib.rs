@@ -5,7 +5,6 @@ use std::{
 
 use header::HttpHeader;
 use pool::POOL_INSTANCE;
-use response::Response;
 
 mod header;
 mod pool;
@@ -17,6 +16,7 @@ mod url;
 pub use request::Request;
 pub use request::Method;
 pub use url::Url;
+pub use response::Response;
 
 const MAX_HEADER_SIZE: usize = 32768;
 
