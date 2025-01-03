@@ -129,6 +129,23 @@ impl Response {
         return Ok(0);
     }
 
+    pub fn read_entire_body(&mut self, max_bytes: usize) -> Result<Vec<u8>, Box<dyn error::Error>> {
+        let mut grow_buf: Vec<u8> = vec![];
+        let mut buf = [0u8; 4096];
+        let mut n_bytes: usize = 1;
+        while n_bytes > 0 {
+            n_bytes = self.read_body(&mut buf)?;
+            if n_bytes > 0 {
+                grow_buf.append(&mut grow_buf[..n_bytes].to_vec());
+            }
+            if grow_buf.len() > max_bytes {
+                return Err(format!("body exceeded maximum byte limit of {}", max_bytes).into());
+            }
+        }
+
+        Ok(grow_buf)
+    }
+
     fn _read_body_fixed(&mut self, buf: &mut [u8]) -> Result<usize, Box<dyn error::Error>> {
         // short circuit out if the body has already been consumed
         if self.body_bytes_available <= self.body_bytes_read {
