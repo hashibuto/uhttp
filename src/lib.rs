@@ -13,20 +13,18 @@ mod response;
 mod session;
 mod url;
 
-pub use request::Request;
 pub use request::Method;
-pub use url::Url;
+pub use request::Request;
 pub use response::Response;
+pub use url::Url;
 
 const MAX_HEADER_SIZE: usize = 32768;
 
-pub struct HttpClient {
-}
+pub struct HttpClient {}
 
 impl HttpClient {
     pub fn new() -> Self {
-        return Self {
-        };
+        return Self {};
     }
 
     // Release connection back to the pool after draining any remaining response data
@@ -70,7 +68,10 @@ impl HttpClient {
         http_header.set_header("content-length".to_owned(), format!("{}", body_size));
         http_header.set_header("host".to_owned(), req.url.host());
         if body_size > 0 {
-            http_header.set_header_if_empty("content-type".to_owned(), "application/octet-stream".to_owned());
+            http_header.set_header_if_empty(
+                "content-type".to_owned(),
+                "application/octet-stream".to_owned(),
+            );
         }
 
         let mut session = POOL_INSTANCE.lock().unwrap().acquire(&req.url.host());
@@ -190,7 +191,11 @@ mod tests {
             let header_vec = session.recv_until(b"\r\n\r\n", MAX_HEADER_SIZE).unwrap();
             let req_header = HttpHeader::from_bytes(&header_vec).unwrap();
 
-            let content_length = req_header.get_value("content-length".to_owned()).unwrap().parse::<usize>().unwrap();
+            let content_length = req_header
+                .get_value("content-length".to_owned())
+                .unwrap()
+                .parse::<usize>()
+                .unwrap();
             assert!(content_length == BODY_SIZE);
 
             let mut recv_body: Vec<u8> = vec![];
@@ -236,7 +241,9 @@ mod tests {
             }
         }
 
-        let resp = client.req_with_body(&req, body.len(), &mut body.as_slice()).unwrap();
+        let resp = client
+            .req_with_body(&req, body.len(), &mut body.as_slice())
+            .unwrap();
         assert!(resp.status.status_code == 200);
         client.release(resp).unwrap();
         jh.join().unwrap();
@@ -275,7 +282,6 @@ mod tests {
                 let n_bytes = session.send(&body[total..]).unwrap();
                 total += n_bytes;
             }
-
         });
 
         let client = HttpClient::new();

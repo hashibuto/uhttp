@@ -146,5 +146,4 @@ mod tests {
         assert!(u.query == "a=1&b=2");
         assert!(u.fragment == "test")
     }
-
 }

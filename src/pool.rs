@@ -1,5 +1,11 @@
 use std::{
-    collections::{HashMap, VecDeque}, sync::{mpsc::{channel, Receiver, Sender}, Arc, LazyLock, Mutex}, thread::{self, JoinHandle}, time::{Duration, Instant}
+    collections::{HashMap, VecDeque},
+    sync::{
+        mpsc::{channel, Receiver, Sender},
+        Arc, LazyLock, Mutex,
+    },
+    thread::{self, JoinHandle},
+    time::{Duration, Instant},
 };
 
 use crate::session::TcpSession;
@@ -113,6 +119,7 @@ impl SessionPool {
             self.host_lookup.remove(&host);
         }
 
-        return self.host_lookup.len() == 0 && now.duration_since(self.last_interaction).as_secs() > 30;
+        return self.host_lookup.len() == 0
+            && now.duration_since(self.last_interaction).as_secs() > 30;
     }
 }
