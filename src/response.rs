@@ -10,25 +10,25 @@ pub struct HttpStatus {
 
 impl HttpStatus {
     pub fn new(status_code: usize) -> Self {
-        let status_msg: String;
+        let status_msg: &str;
 
         // We are a client, this is implemented for testing purposes only
         if status_code < 200 {
-            status_msg = "Information".to_owned();
+            status_msg = "Information";
         } else if status_code < 300 {
-            status_msg = "OK".to_owned();
+            status_msg = "OK";
         } else if status_code < 400 {
-            status_msg = "Redirect".to_owned();
+            status_msg = "Redirect";
         } else if status_code < 500 {
-            status_msg = "Client error".to_owned();
+            status_msg = "Client error";
         } else {
-            status_msg = "Server error".to_owned();
+            status_msg = "Server error";
         }
 
         Self {
             proto: "HTTP/1.1".to_owned(),
             status_code,
-            status_msg,
+            status_msg: status_msg.to_owned(),
         }
     }
 
