@@ -12,7 +12,7 @@ use uhttp::{HttpClient, Method, Request, Url};
 
 fn main() {
   let client = HttpClient::new();
-  let req = Request::new(Method::Get, Url::new("http://test.com".to_owned()));
+  let req = Request::new(Method::Get, Url::new("http://test.com"));
   let mut resp = client.req(&req).unwrap();
   let mut resp_body: Vec<u8> = vec![];
   let mut buf = [0u8; 4096];
