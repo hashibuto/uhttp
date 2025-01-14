@@ -68,10 +68,7 @@ impl HttpClient {
         http_header.set_header("content-length", &format!("{}", body_size));
         http_header.set_header("host", &req.url.host());
         if body_size > 0 {
-            http_header.set_header_if_empty(
-                "content-type",
-                "application/octet-stream",
-            );
+            http_header.set_header_if_empty("content-type", "application/octet-stream");
         }
 
         let mut session = POOL_INSTANCE.lock().unwrap().acquire(&req.url.host());
