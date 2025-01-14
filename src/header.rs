@@ -27,7 +27,7 @@ impl HttpHeader {
         self.line = http_status.to_string();
     }
 
-    pub fn add_header(&mut self, key: String, value: String) {
+    pub fn add_header(&mut self, key: &str, value: &str) {
         let k = key.to_lowercase().trim().to_owned();
         let v = value.trim().to_owned();
         match self.headers.entry(k) {
@@ -40,13 +40,13 @@ impl HttpHeader {
         }
     }
 
-    pub fn set_header(&mut self, key: String, value: String) {
+    pub fn set_header(&mut self, key: &str, value: &str) {
         let k = key.to_lowercase().trim().to_owned();
         let v = value.trim().to_owned();
         self.headers.insert(k, vec![v]);
     }
 
-    pub fn set_header_if_empty(&mut self, key: String, value: String) {
+    pub fn set_header_if_empty(&mut self, key: &str, value: &str) {
         let k = key.to_lowercase().trim().to_owned();
         if self.headers.contains_key(&k) {
             return;
@@ -124,7 +124,7 @@ impl HttpHeader {
 
     // Returns a single value for key if it exists.  It will always be the first
     // header value received for the given key.
-    pub fn get_value(&self, key: String) -> Option<String> {
+    pub fn get_value(&self, key: &str) -> Option<String> {
         let v = self.headers.get(&key.to_lowercase());
         if v.is_none() {
             return None;

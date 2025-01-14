@@ -8,7 +8,7 @@ pub struct Url {
 }
 
 impl Url {
-    pub fn new(url: String) -> Self {
+    pub fn new(url: &str) -> Self {
         let mut base: &str;
         let mut query = "";
         let mut scheme = "";
@@ -24,7 +24,7 @@ impl Url {
             base = a;
             fragment = b;
         } else {
-            base = url.as_str();
+            base = url;
         }
 
         // split off query
@@ -138,7 +138,7 @@ mod tests {
 
     #[test]
     fn test_url_parser() {
-        let u = Url::new("http://www.my-test.com:8080/whatever?a=1&b=2#test".to_string());
+        let u = Url::new("http://www.my-test.com:8080/whatever?a=1&b=2#test");
         assert!(u.scheme == "http");
         assert!(u.hostname == "www.my-test.com");
         assert!(u.port == "8080");

@@ -65,12 +65,12 @@ impl HttpClient {
     ) -> Result<Response, Box<dyn error::Error>> {
         // make a copy of the header so that we can apply default headers
         let mut http_header = req.header.clone();
-        http_header.set_header("content-length".to_owned(), format!("{}", body_size));
-        http_header.set_header("host".to_owned(), req.url.host());
+        http_header.set_header("content-length", &format!("{}", body_size));
+        http_header.set_header("host", &req.url.host());
         if body_size > 0 {
             http_header.set_header_if_empty(
-                "content-type".to_owned(),
-                "application/octet-stream".to_owned(),
+                "content-type",
+                "application/octet-stream",
             );
         }
 
@@ -130,7 +130,7 @@ mod tests {
 
             let mut resp_header = HttpHeader::new();
             resp_header.set_status_line(&HttpStatus::new(200));
-            resp_header.set_header("authorization".to_owned(), "Bearer token".to_owned());
+            resp_header.set_header("authorization", "Bearer token");
             let resp_header_bytes = resp_header.to_vec();
             session.send(&resp_header_bytes).unwrap();
         });
@@ -138,7 +138,7 @@ mod tests {
         let client = HttpClient::new();
         let req = Request::new(
             Method::Post,
-            Url::new("http://localhost:10643/path/is/here?abc=1&def=2".to_string()),
+            Url::new("http://localhost:10643/path/is/here?abc=1&def=2"),
         );
         let resp = client.req(&req).unwrap();
         assert!(resp.status.status_code == 200);
@@ -161,7 +161,7 @@ mod tests {
 
                 let mut resp_header = HttpHeader::new();
                 resp_header.set_status_line(&HttpStatus::new(200));
-                resp_header.set_header("authorization".to_owned(), "Bearer token".to_owned());
+                resp_header.set_header("authorization", "Bearer token");
                 let resp_header_bytes = resp_header.to_vec();
                 session.send(&resp_header_bytes).unwrap();
             }
@@ -170,7 +170,7 @@ mod tests {
         for _ in 0..2 {
             let req = Request::new(
                 Method::Post,
-                Url::new("http://localhost:10644/path/is/here?abc=1&def=2".to_string()),
+                Url::new("http://localhost:10644/path/is/here?abc=1&def=2"),
             );
             let resp = client.req(&req).unwrap();
             assert!(resp.status.status_code == 200);
@@ -192,7 +192,7 @@ mod tests {
             let req_header = HttpHeader::from_bytes(&header_vec).unwrap();
 
             let content_length = req_header
-                .get_value("content-length".to_owned())
+                .get_value("content-length")
                 .unwrap()
                 .parse::<usize>()
                 .unwrap();
@@ -219,7 +219,7 @@ mod tests {
 
             let mut resp_header = HttpHeader::new();
             resp_header.set_status_line(&HttpStatus::new(200));
-            resp_header.set_header("authorization".to_owned(), "Bearer token".to_owned());
+            resp_header.set_header("authorization", "Bearer token");
             let resp_header_bytes = resp_header.to_vec();
             session.send(&resp_header_bytes).unwrap();
         });
@@ -227,7 +227,7 @@ mod tests {
         let client = HttpClient::new();
         let req = Request::new(
             Method::Post,
-            Url::new("http://localhost:10645/path/is/here?abc=1&def=2".to_string()),
+            Url::new("http://localhost:10645/path/is/here?abc=1&def=2"),
         );
 
         let mut body: Vec<u8> = vec![];
@@ -262,8 +262,8 @@ mod tests {
 
             let mut resp_header = HttpHeader::new();
             resp_header.set_status_line(&HttpStatus::new(200));
-            resp_header.set_header("authorization".to_owned(), "Bearer token".to_owned());
-            resp_header.set_header("content-length".to_owned(), format!("{}", BODY_SIZE));
+            resp_header.set_header("authorization", "Bearer token");
+            resp_header.set_header("content-length", &format!("{}", BODY_SIZE));
             let resp_header_bytes = resp_header.to_vec();
             session.send(&resp_header_bytes).unwrap();
 
@@ -287,7 +287,7 @@ mod tests {
         let client = HttpClient::new();
         let req = Request::new(
             Method::Post,
-            Url::new("http://localhost:10646/path/is/here?abc=1&def=2".to_string()),
+            Url::new("http://localhost:10646/path/is/here?abc=1&def=2"),
         );
         let mut resp = client.req(&req).unwrap();
         assert!(resp.status.status_code == 200);

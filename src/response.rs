@@ -78,14 +78,14 @@ impl Response {
         let status = HttpStatus::from_string(&header.line)?;
 
         let mut body_bytes_available: usize = 0;
-        let content_length_result = header.get_value("content-length".to_owned());
+        let content_length_result = header.get_value("content-length");
         if content_length_result.is_some() {
             let content_length_str = content_length_result.unwrap();
             body_bytes_available = content_length_str.parse::<usize>()?;
         }
 
         let mut has_chunked_body = false;
-        let transfer_encoding_result = header.get_value("transfer-encoding".to_owned());
+        let transfer_encoding_result = header.get_value("transfer-encoding");
         let mut next_chunk_bytes_available: usize = 0;
         if transfer_encoding_result.is_some() {
             // we only support chunked encoding
